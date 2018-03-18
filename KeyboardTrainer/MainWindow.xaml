@@ -5,8 +5,91 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KeyboardTrainer"
         mc:Ignorable="d"
-        Title="MainWindow" Height="350" Width="525">
-    <Grid>
-        
-    </Grid>
+        Title="Keyboard Trainer" Height="350" Width="700">
+    
+	<Grid>
+		<Grid.RowDefinitions>
+			<RowDefinition/>
+			<RowDefinition/>
+			<RowDefinition Height="5*"/>
+		</Grid.RowDefinitions>
+
+		<UniformGrid x:Name="controlsGrid" Rows="2" Columns="4" Grid.Row="0">
+			<StackPanel Orientation="Horizontal" Margin="2,0">
+				<Label Content="Speed: " VerticalContentAlignment="Center" Padding="0" Target="{Binding ElementName=tbSpeed}"></Label>
+				<TextBox x:Name="tbSpeed" Text="0" FontWeight="Bold" BorderThickness="0" VerticalContentAlignment="Center" Margin="2,0"></TextBox>
+				<Label VerticalContentAlignment="Center" Padding="0" Target="{Binding ElementName=tbSpeed}"> chars/min</Label>
+			</StackPanel>
+			<StackPanel Orientation="Horizontal" Margin="2,0">
+				<Label Content="Fails: " VerticalContentAlignment="Center" Padding="0" Target="{Binding ElementName=tbFails}"></Label>
+				<TextBox x:Name="tbFails" Text="0" FontWeight="Bold" BorderThickness="0" VerticalContentAlignment="Center" Margin="2,0"></TextBox>
+			</StackPanel>
+			<UniformGrid Columns="2"  Margin="2,0">
+				<StackPanel Orientation="Horizontal">
+					<Label Content="_Difficulty: " VerticalContentAlignment="Center" Padding="0" Target="{Binding ElementName=tbDifficulty}"></Label>
+					<TextBox x:Name="tbDifficulty" Text="10" FontWeight="Bold" BorderThickness="0" VerticalContentAlignment="Center" Margin="2,0"></TextBox>
+				</StackPanel>
+				<Slider HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" Minimum="2" Maximum="47" SmallChange="1" Value="10"></Slider>
+			</UniformGrid>
+			<CheckBox Content="_Case Sensitive" x:Name="cbCaseSensitive" Margin="4,0" VerticalContentAlignment="Center"></CheckBox>
+			<TextBlock></TextBlock>
+			<TextBlock></TextBlock>
+			<Button x:Name="btnStart" Content="Start" Margin="1"></Button>
+			<Button x:Name="btnStop" Content="Stop" Margin="1"></Button>
+		</UniformGrid>
+
+		<UniformGrid Rows="2" x:Name="textGrid" Grid.Row="1">
+			<TextBox x:Name="tbGeneratedText" BorderThickness="0" Background="#FFB4D6EE" Margin="1,1,1,0"></TextBox>
+			<TextBox x:Name="tbTypedText" BorderThickness="0" Background="#FFB4D6EE" Margin="1,0,1,1"></TextBox>
+		</UniformGrid>
+
+		<Grid x:Name="keyboardGrid" Grid.Row="2">
+			<Grid.ColumnDefinitions>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+				<ColumnDefinition/>
+			</Grid.ColumnDefinitions>
+			<Grid.RowDefinitions>
+				<RowDefinition/>
+				<RowDefinition/>
+				<RowDefinition/>
+				<RowDefinition/>
+				<RowDefinition/>
+			</Grid.RowDefinitions>
+			<!--<Button Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="`"></Button>
+			<Button Grid.Row="0" Grid.Column="2" Grid.ColumnSpan="2" Content="1"></Button>
+			<Button Grid.Row="0" Grid.Column="4" Grid.ColumnSpan="2" Content="2"></Button>
+			<Button Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Content="Tab"></Button>
+			<Button Grid.Row="1" Grid.Column="3" Grid.ColumnSpan="2" Content="q"></Button>
+			<Button Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4" Content="Caps Lock"></Button>-->
+		</Grid>
+	</Grid>
 </Window>
