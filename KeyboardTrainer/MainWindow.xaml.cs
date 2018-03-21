@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -55,7 +56,8 @@ namespace KeyboardTrainer
 				Text = regularValue,
 				FontSize = 24.0,
 				HorizontalAlignment = HorizontalAlignment.Center,
-				VerticalAlignment = VerticalAlignment.Center
+				VerticalAlignment = VerticalAlignment.Center,
+				Margin = new Thickness(0, -3, 0, 0)
 			};
 
 			border.Child = textBlock;
@@ -244,6 +246,25 @@ namespace KeyboardTrainer
 			cbCaseSensitive.IsEnabled = false;
 			sliderDifficulty.IsEnabled = false;
 			tbTypedText.Text = "";
+
+			int difficulty;
+			try
+			{
+				difficulty = int.Parse(tbDifficulty.Text);
+
+				if (difficulty > 47)
+					difficulty = 47;
+				else if (difficulty < 5)
+					difficulty = 5;
+			}
+			catch (FormatException fe)
+			{
+				difficulty = 10;
+				tbDifficulty.Text = "10";
+			}
+			tbDifficulty.Text = difficulty.ToString();
+			tbGeneratedText.Text = GenerateText(difficulty);
+			//MessageBox.Show(tbGeneratedText.Text.Length.ToString());
 		}
 
 		private void btnStop_Click(object sender, RoutedEventArgs e)
@@ -275,6 +296,11 @@ namespace KeyboardTrainer
 				RefreshKeyboard();
 			}
 			//MessageBox.Show(e.Key.ToString(), "Key Down");
+			tbTypedText.Text = tbGeneratedText.Text;
+			tbGeneratedText.Select(0, 45);
+			tbTypedText.Select(0, 45);
+			tbGeneratedText.Focus();
+			tbTypedText.Focus();
 		}
 
 		private void mainWindow_KeyUp(object sender, KeyEventArgs e)
@@ -293,6 +319,12 @@ namespace KeyboardTrainer
 			{
 				keyboardButton.RefreshText(shiftIsOn, capsIsOn);
 			}
+		}
+
+		private string GenerateText(int difficulty)
+		{
+			// length = 68
+			return "drpongj bndlvk nrgiurth goibj;z oig sdpfj af jskdnvi8349wfn r093ru k";
 		}
 
 	}
