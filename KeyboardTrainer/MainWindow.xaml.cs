@@ -142,8 +142,6 @@ namespace KeyboardTrainer
 		{
 			TextElement.FontSize = 16.0;
 		}
-
-		// GetTextValue " "
 	}
 
 	/// <summary>
@@ -164,7 +162,11 @@ namespace KeyboardTrainer
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		Dictionary<Key, KeyboardButton> keyboardButtons;
+		DateTime startTime;
+		int correctlyTypedTextLength;
+		int fails;
+		Dictionary<Key, KeyboardButton> keyboardButtons;  // to store buttons shown on the graphical keyboard in the main window
+		//Dictionary<char, char> printableCharacters;  // to store all characters available for text generation
 
 		public MainWindow()
 		{
@@ -235,6 +237,7 @@ namespace KeyboardTrainer
 			foreach (KeyboardButton keyboardButton in keyboardButtons.Values)
 			{
 				keyboardGrid.Children.Add(keyboardButton.GridElement);
+				//if (keyboardButton is )
 			}
 		}
 
@@ -246,6 +249,9 @@ namespace KeyboardTrainer
 			cbCaseSensitive.IsEnabled = false;
 			sliderDifficulty.IsEnabled = false;
 			tbTypedText.Text = "";
+			startTime = DateTime.Now;
+			correctlyTypedTextLength = 0;
+			fails = 0;
 
 			int difficulty;
 			try
@@ -264,10 +270,16 @@ namespace KeyboardTrainer
 			}
 			tbDifficulty.Text = difficulty.ToString();
 			tbGeneratedText.Text = GenerateText(difficulty);
+			tbTypedText.Focus();
 			//MessageBox.Show(tbGeneratedText.Text.Length.ToString());
 		}
 
 		private void btnStop_Click(object sender, RoutedEventArgs e)
+		{
+			Stop();
+		}
+
+		private void Stop()
 		{
 			btnStop.IsEnabled = false;
 			btnStart.IsEnabled = true;
@@ -275,40 +287,82 @@ namespace KeyboardTrainer
 			sliderDifficulty.IsEnabled = true;
 		}
 
-
 		private void mainWindow_PreviewKeyDown(object sender, KeyEventArgs e)
 		{
-			if (keyboardButtons.ContainsKey(e.Key))
-				keyboardButtons[e.Key].GridElement.Effect = new DropShadowEffect();
+			if (!keyboardButtons.ContainsKey(e.Key))
+				return;
+
+			keyboardButtons[e.Key].GridElement.Effect = new DropShadowEffect();
+
+			if (e.Key == Key.LeftShift || e.Key == Key.RightShift || e.Key == Key.CapsLock)
+			{
+				RefreshKeyboard();
+				return;
+			}
+
+			e.Handled = true;
+
+			if (btnStart.IsEnabled)  // if the Start button is enabled, the exercise hasn't started yet
+				return;
+
+			if (e.Key == Key.Back)
+			{
+				if (tbTypedText.Text.Length > 0)
+				{
+					tbTypedText.Text = tbTypedText.Text.Remove(tbTypedText.Text.Length - 1);
+					if (correctlyTypedTextLength > tbTypedText.Text.Length)
+						correctlyTypedTextLength = tbTypedText.Text.Length;
+					tbTypedText.Select(0, correctlyTypedTextLength);
+				}
+				return;
+			}
+
+			if (e.Key == Key.Space)
+				tbTypedText.AppendText(" ");
+			else if (keyboardButtons[e.Key] is LetterKey || keyboardButtons[e.Key] is SpecialCharKey)
+				tbTypedText.AppendText(keyboardButtons[e.Key].TextElement.Text);
+
+			//if (correctlyTypedTextLength < tbTypedText.Text.Length && correctlyTypedTextLength < tbGeneratedText.Text.Length)
+			//{
+			if (tbGeneratedText.Text[correctlyTypedTextLength] == tbTypedText.Text[correctlyTypedTextLength])
+				correctlyTypedTextLength++;
+			if (tbGeneratedText.Text[tbTypedText.Text.Length - 1] != tbTypedText.Text[tbTypedText.Text.Length - 1])
+				fails++;
+
+			tbFails.Text = fails.ToString();
+			tbSpeed.Text = Math.Round(correctlyTypedTextLength / (DateTime.Now - startTime).TotalMinutes).ToString();
+			tbTypedText.Select(0, correctlyTypedTextLength);
+
+			if (correctlyTypedTextLength == tbGeneratedText.Text.Length)
+			{
+				Stop();
+				MessageBox.Show("Congrats! You successfully typed the whole text", "Finished", MessageBoxButton.OK);
+				RefreshKeyboard();
+			}
 		}
 
 		private void mainWindow_PreviewKeyUp(object sender, KeyEventArgs e)
 		{
-			if (keyboardButtons.ContainsKey(e.Key))
-				keyboardButtons[e.Key].GridElement.Effect = null;
+			if (!keyboardButtons.ContainsKey(e.Key))
+				return;
+
+			keyboardButtons[e.Key].GridElement.Effect = null;
+
+			if (e.Key == Key.LeftShift || e.Key == Key.RightShift)
+				RefreshKeyboard();
+
+			e.Handled = true;
 		}
 
 
 		private void mainWindow_KeyDown(object sender, KeyEventArgs e)
 		{
-			if (e.Key == Key.LeftShift || e.Key == Key.RightShift || e.Key == Key.CapsLock)
-			{
-				RefreshKeyboard();
-			}
-			//MessageBox.Show(e.Key.ToString(), "Key Down");
-			tbTypedText.Text = tbGeneratedText.Text;
-			tbGeneratedText.Select(0, 45);
-			tbTypedText.Select(0, 45);
-			tbGeneratedText.Focus();
-			tbTypedText.Focus();
+
 		}
 
 		private void mainWindow_KeyUp(object sender, KeyEventArgs e)
 		{
-			if (e.Key == Key.LeftShift || e.Key == Key.RightShift)
-			{
-				RefreshKeyboard();
-			}
+
 		}
 
 		private void RefreshKeyboard()
@@ -318,13 +372,14 @@ namespace KeyboardTrainer
 			foreach (KeyboardButton keyboardButton in keyboardButtons.Values)
 			{
 				keyboardButton.RefreshText(shiftIsOn, capsIsOn);
+				keyboardButton.GridElement.Effect = null;
 			}
 		}
 
 		private string GenerateText(int difficulty)
 		{
 			// length = 68
-			return "drpongj bndlvk nrgiurth goibj;z oig sdpfj af jskdnvi8349wfn r093ru k";
+			return "Hello, World! Hello, World!";
 		}
 
 	}
