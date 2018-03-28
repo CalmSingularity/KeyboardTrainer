@@ -31,11 +31,11 @@
 				</StackPanel>
 				<Slider x:Name="sliderDifficulty" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" Minimum="2" Maximum="47" SmallChange="1" Value="12" ValueChanged="sliderDifficulty_ValueChanged" TickFrequency="5" TickPlacement="BottomRight"></Slider>
 			</UniformGrid>
-			<CheckBox Content="Case Sensitive" x:Name="cbCaseSensitive" Margin="4,0" VerticalContentAlignment="Center"></CheckBox>
-			<TextBlock></TextBlock>
-			<TextBlock></TextBlock>
+			<CheckBox Content="Include Digits" x:Name="cbIncludeDigits" Margin="4,0" VerticalContentAlignment="Center"></CheckBox>
 			<Button x:Name="btnStart" Content="Start" Margin="1" Click="btnStart_Click" FontSize="13"></Button>
 			<Button x:Name="btnStop" Content="Stop" Margin="1" Click="btnStop_Click" FontSize="13" IsEnabled="False"></Button>
+			<CheckBox Content="Case Sensitive" x:Name="cbCaseSensitive" Margin="4,0" VerticalContentAlignment="Center"></CheckBox>
+			<CheckBox Content="Include Special Characters" x:Name="cbIncludeSpecialChars" Margin="4,0" VerticalContentAlignment="Center"></CheckBox>
 		</UniformGrid>
 
 		<UniformGrid Rows="2" x:Name="textGrid" Grid.Row="1" Margin="0,2">

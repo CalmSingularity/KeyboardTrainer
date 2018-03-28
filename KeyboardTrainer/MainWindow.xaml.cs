@@ -1,19 +1,13 @@
-﻿using System;
+﻿// https://github.com/simon-k3/KeyboardTrainer
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Effects;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace KeyboardTrainer
 {
@@ -31,7 +25,7 @@ namespace KeyboardTrainer
 		/// Initializes a new instance of the KeyboardButton class.
 		/// </summary>
 		/// <param name="regularValue">Text on the button when Shift key is not pressed (digit or small letter)</param>
-		/// <param name="shiftValue">Text on the button when Shift key is pressed (capital letter or special character in case of a digit button)</param>
+		/// <param name="shiftValue">Text on the button when Shift key is pressed (capital letter or special character on a digit button)</param>
 		/// <param name="row">Row of the window grid where the button is located</param>
 		/// <param name="column">Column of the window grid where the button is located</param>
 		/// <param name="columnSpan">How many columns of the window grid the button occupies</param>
@@ -90,19 +84,9 @@ namespace KeyboardTrainer
 	}
 
 	/// <summary>
-	/// A key (button) that represents a printable character.
-	/// </summary>
-	class PrintableKey : KeyboardButton
-	{
-		public PrintableKey(string regularValue, string shiftValue, int row, int column, int columnSpan, Color backgroundColor)
-			: base(regularValue, shiftValue, row, column, columnSpan, backgroundColor)
-		{ }
-	}
-
-	/// <summary>
 	/// A key (button) that represents a single letter.
 	/// </summary>
-	class LetterKey : PrintableKey
+	class LetterKey : KeyboardButton
 	{
 		public LetterKey(string value, int row, int column, Color backgroundColor)
 			: base(value.ToLower(), value.ToUpper(), row, column, 2, backgroundColor)
@@ -122,9 +106,9 @@ namespace KeyboardTrainer
 	}
 
 	/// <summary>
-	/// A key (button) that represents a digit or a single special character. 
+	/// A key (button) that represents a single special character (but not a digit key). 
 	/// </summary>
-	class SpecialCharKey : PrintableKey
+	class SpecialCharKey : KeyboardButton
 	{
 		public SpecialCharKey(string regularValue, string shiftValue, int row, int column, int columnSpan, Color backgroundColor)
 			: base(regularValue, shiftValue, row, column, columnSpan, backgroundColor)
@@ -133,24 +117,28 @@ namespace KeyboardTrainer
 		public override void RefreshText(bool shiftIsOn, bool capsIsOn)
 		{
 			if (shiftIsOn)
-			{
 				TextElement.Text = ShiftValue;
-			}
 			else
-			{
 				TextElement.Text = Value;
-			}
 		}
 	}
 
 	/// <summary>
 	/// A key (button) that represents a digit. 
 	/// </summary>
-	class DigitKey : SpecialCharKey
+	class DigitKey : KeyboardButton
 	{
 		public DigitKey(string regularValue, string shiftValue, int row, int column, Color backgroundColor)
 			: base(regularValue, shiftValue, row, column, 2, backgroundColor)
 		{ }
+
+		public override void RefreshText(bool shiftIsOn, bool capsIsOn)
+		{
+			if (shiftIsOn)
+				TextElement.Text = ShiftValue;
+			else
+				TextElement.Text = Value;
+		}
 	}
 
 	/// <summary>
@@ -171,14 +159,13 @@ namespace KeyboardTrainer
 	/// </summary>
 	public partial class MainWindow : Window
 	{
-		const int TEXT_LENGHT = 68;
+		const int GENERATED_TEXT_LENGTH = 68;
 		const int N_PRINTABLE_CHARS = 47;
-		Random rand;
-		DateTime startTime;
-		int correctlyTypedTextLength;
-		int fails;
+		Random rand;  // for generating random characters
+		DateTime startTime;  // to save the time when the user hits the Start button
+		int correctlyTypedTextLength;  // the number of typed characters before the first mismatch with the generated string
+		int fails;  // number of wrongly typed characters  
 		Dictionary<Key, KeyboardButton> allKeyboardButtons;  // to store buttons shown on the graphical keyboard in the main window 
-		List<PrintableKey> allPrintableChars;  // to store all printable characters for the purposes of random text generation
 
 		public MainWindow()
 		{
@@ -186,6 +173,7 @@ namespace KeyboardTrainer
 			rand = new Random(DateTime.Now.Millisecond);
 			allKeyboardButtons = new Dictionary<Key, KeyboardButton>();
 
+			// Create all keys for the keyboard:
 			allKeyboardButtons[Key.Oem3] = new SpecialCharKey("`", "~", 0, 0, 2, Colors.Pink);
 			allKeyboardButtons[Key.D1] = new DigitKey("1", "!", 0, 2, Colors.Pink);
 			allKeyboardButtons[Key.D2] = new DigitKey("2", "@", 0, 4, Colors.Pink);
@@ -247,12 +235,9 @@ namespace KeyboardTrainer
 			allKeyboardButtons[Key.RWin] = new ControlKey("Win", 4, 24, 3);
 			allKeyboardButtons[Key.RightCtrl] = new ControlKey("Ctrl", 4, 27, 3);
 
-			// implementing graphical keyboard in the main window
+			// Place all KeyboardButtons to the grid on the main window:
 			foreach (KeyboardButton keyboardButton in allKeyboardButtons.Values)  
-				keyboardGrid.Children.Add(keyboardButton.GridElement);
-
-			// populating printable characters list for the for the purposes of random text generation
-			allPrintableChars = allKeyboardButtons.Values.OfType<PrintableKey>().ToList<PrintableKey>();  
+				keyboardGrid.Children.Add(keyboardButton.GridElement); 
 		}
 
 		private void sliderDifficulty_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
@@ -265,11 +250,15 @@ namespace KeyboardTrainer
 			btnStop.IsEnabled = true;
 			btnStart.IsEnabled = false;
 			cbCaseSensitive.IsEnabled = false;
+			cbIncludeDigits.IsEnabled = false;
+			cbIncludeSpecialChars.IsEnabled = false;
 			sliderDifficulty.IsEnabled = false;
 			tbTypedText.Text = "";
 			startTime = DateTime.Now;
 			correctlyTypedTextLength = 0;
 			fails = 0;
+			tbFails.Text = "0";
+			tbSpeed.Text = "0";
 
 			int difficulty;
 			try
@@ -283,7 +272,7 @@ namespace KeyboardTrainer
 			}
 			catch (FormatException fe)
 			{
-				difficulty = 12;
+				difficulty = 12;  // default value
 				tbDifficulty.Text = "12";
 			}
 			tbDifficulty.Text = difficulty.ToString();
@@ -301,6 +290,8 @@ namespace KeyboardTrainer
 			btnStop.IsEnabled = false;
 			btnStart.IsEnabled = true;
 			cbCaseSensitive.IsEnabled = true;
+			cbIncludeDigits.IsEnabled = true;
+			cbIncludeSpecialChars.IsEnabled = true;
 			sliderDifficulty.IsEnabled = true;
 		}
 
@@ -317,8 +308,6 @@ namespace KeyboardTrainer
 				return;
 			}
 
-			e.Handled = true;
-
 			if (btnStart.IsEnabled)  // if the Start button is enabled, the exercise hasn't started yet
 				return;
 
@@ -330,33 +319,40 @@ namespace KeyboardTrainer
 					if (correctlyTypedTextLength >= tbTypedText.Text.Length)
 					{
 						correctlyTypedTextLength = tbTypedText.Text.Length;
-						tbTypedText.Foreground = new SolidColorBrush(Colors.Black);
+						tbTypedText.Foreground = new SolidColorBrush(Colors.Black);  // since all typed text is correct
 					}
-					tbTypedText.Select(0, correctlyTypedTextLength);
+					tbTypedText.Select(0, correctlyTypedTextLength);  // selection of green color highlights the correctly typed text
 				}
 				return;
 			}
+
+			if (allKeyboardButtons[e.Key] is ControlKey)
+				return;
+
+			e.Handled = true;
 
 			if (e.Key == Key.Space)
 				tbTypedText.AppendText(" ");
 			else if (allKeyboardButtons[e.Key] is LetterKey || allKeyboardButtons[e.Key] is SpecialCharKey)
 				tbTypedText.AppendText(allKeyboardButtons[e.Key].TextElement.Text);
 
+			// If the next char after the sequence of the previously checked chars is correct, it will expand the green highlight to this char:
 			if (tbGeneratedText.Text[correctlyTypedTextLength] == tbTypedText.Text[correctlyTypedTextLength])
-				correctlyTypedTextLength++;
+				correctlyTypedTextLength++;  
 
+			// If the last typed char is incorrect, it will increase number of user fails
 			if (tbTypedText.Text.Length <= tbGeneratedText.Text.Length)
 				if (tbGeneratedText.Text[tbTypedText.Text.Length - 1] != tbTypedText.Text[tbTypedText.Text.Length - 1])
 					fails++;
 
 			if (correctlyTypedTextLength == tbTypedText.Text.Length)
-				tbTypedText.Foreground = new SolidColorBrush(Colors.Black);
+				tbTypedText.Foreground = new SolidColorBrush(Colors.Black);  // no mistakes in the typed text
 			else
-				tbTypedText.Foreground = new SolidColorBrush(Colors.Red);
+				tbTypedText.Foreground = new SolidColorBrush(Colors.Red);  // there is at least one mistake
 
 			tbFails.Text = fails.ToString();
 			tbSpeed.Text = Math.Round(correctlyTypedTextLength / (DateTime.Now - startTime).TotalMinutes).ToString();
-			tbTypedText.Select(0, correctlyTypedTextLength);
+			tbTypedText.Select(0, correctlyTypedTextLength);  // selection of green color highlights the correctly typed text
 
 			if (correctlyTypedTextLength == tbGeneratedText.Text.Length)
 			{
@@ -392,26 +388,35 @@ namespace KeyboardTrainer
 
 		private string GenerateText(int difficulty)
 		{
-			List<char> randomChars = new List<char>();  // a list of randomly chosen chars according to the difficulty level to generate a text string from
+			List<KeyboardButton> charsForTextGeneration = allKeyboardButtons.Values.OfType<LetterKey>().ToList<KeyboardButton>();
+			if (cbIncludeDigits.IsChecked == true)
+				charsForTextGeneration.AddRange(allKeyboardButtons.Values.OfType<DigitKey>().ToList<KeyboardButton>());
+			if (cbIncludeSpecialChars.IsChecked == true)
+				charsForTextGeneration.AddRange(allKeyboardButtons.Values.OfType<SpecialCharKey>().ToList<KeyboardButton>());
+
+			List<char> randomChars = new List<char>();  // a list of randomly chosen chars to generate a text string from, according to the difficulty level 
 			int randomIndex;
 
-			for (int i = 0; i < difficulty; ++i)  // add random characters to the list
+			// Add the required number of random characters to the list:
+			for (int i = 0; i < difficulty; ++i)  
 			{
-				randomIndex = rand.Next(N_PRINTABLE_CHARS);
-				randomChars.Add(allPrintableChars.ElementAt(randomIndex).Value[0]);
+				randomIndex = rand.Next(charsForTextGeneration.Count);
+				randomChars.Add(charsForTextGeneration.ElementAt(randomIndex).Value[0]);
 				if (cbCaseSensitive.IsChecked == true)
-					randomChars.Add(allPrintableChars.ElementAt(randomIndex).ShiftValue[0]);
+					randomChars.Add(charsForTextGeneration.ElementAt(randomIndex).ShiftValue[0]);
 			}
 
-			for (int i = 5; i <= difficulty; i += 5)  // add some number of spaces to the list relative to the length of the list
+			// Add some number of spaces to the list relative to the length of the list:
+			for (int i = 5; i <= difficulty; i += 5)  
 			{
 				randomChars.Add(' ');
 				if (cbCaseSensitive.IsChecked == true)
 					randomChars.Add(' ');
 			}
 
+			// Generate a random string from previously randomly chosen chars:
 			string result = "";
-			for (int i = 0; i < TEXT_LENGHT; ++i)
+			for (int i = 0; i < GENERATED_TEXT_LENGTH; ++i)
 			{
 				result += randomChars[rand.Next(randomChars.Count)];
 			}
