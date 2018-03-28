@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:KeyboardTrainer"
         mc:Ignorable="d"
-        Title="Keyboard Trainer" Height="350" Width="700" KeyUp="mainWindow_KeyUp" PreviewKeyDown="mainWindow_PreviewKeyDown" PreviewKeyUp="mainWindow_PreviewKeyUp" KeyDown="mainWindow_KeyDown">
+        Title="Keyboard Trainer" Height="350" Width="700" PreviewKeyDown="mainWindow_PreviewKeyDown" PreviewKeyUp="mainWindow_PreviewKeyUp">
     
 	<Grid>
 		<Grid.RowDefinitions>
@@ -27,9 +27,9 @@
 			<UniformGrid Columns="2"  Margin="2,0">
 				<StackPanel Orientation="Horizontal">
 					<Label Content="Difficulty: " VerticalContentAlignment="Center" Padding="0" Target="{Binding ElementName=tbDifficulty}"></Label>
-					<TextBox x:Name="tbDifficulty" Text="10" FontWeight="Bold" BorderThickness="0" VerticalContentAlignment="Center" Margin="2,0" IsUndoEnabled="False" MaxLength="2" MaxLines="1"/>
+					<TextBox x:Name="tbDifficulty" Text="12" FontWeight="Bold" BorderThickness="0" VerticalContentAlignment="Center" Margin="2,0" IsUndoEnabled="False" MaxLength="2" MaxLines="1"/>
 				</StackPanel>
-				<Slider x:Name="sliderDifficulty" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" Minimum="2" Maximum="47" SmallChange="1" Value="10"></Slider>
+				<Slider x:Name="sliderDifficulty" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Center" Minimum="2" Maximum="47" SmallChange="1" Value="12" ValueChanged="sliderDifficulty_ValueChanged" TickFrequency="5" TickPlacement="BottomRight"></Slider>
 			</UniformGrid>
 			<CheckBox Content="Case Sensitive" x:Name="cbCaseSensitive" Margin="4,0" VerticalContentAlignment="Center"></CheckBox>
 			<TextBlock></TextBlock>
@@ -40,7 +40,7 @@
 
 		<UniformGrid Rows="2" x:Name="textGrid" Grid.Row="1" Margin="0,2">
 			<TextBox x:Name="tbGeneratedText" BorderThickness="0" Background="#FFB4D6EE" Margin="2,1,2,0" IsReadOnly="True" IsUndoEnabled="False" FontFamily="Consolas" FontSize="18" MaxLines="1" MaxLength="77" SelectionBrush="Green" AllowDrop="False"></TextBox>
-			<TextBox x:Name="tbTypedText" BorderThickness="0" Background="#FFB4D6EE" Margin="2,0,2,1" IsUndoEnabled="False" FontFamily="Consolas" FontSize="18" MaxLength="77" MaxLines="1" SelectionBrush="Green" IsReadOnly="True" AllowDrop="False" IsReadOnlyCaretVisible="True" IsInactiveSelectionHighlightEnabled="True"/>
+			<TextBox x:Name="tbTypedText" BorderThickness="0" Background="#FFB4D6EE" Margin="2,0,2,1" IsUndoEnabled="False" FontFamily="Consolas" FontSize="18" MaxLength="77" MaxLines="1" SelectionBrush="Green" IsReadOnly="True" AllowDrop="False" IsInactiveSelectionHighlightEnabled="True"/>
 		</UniformGrid>
 
 		<Grid x:Name="keyboardGrid" Grid.Row="2">
